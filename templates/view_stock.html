@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>
+                <i class="fas fa-boxes me-2"></i>Stock Inventory
+            </h1>
+            <a href="{{ url_for('add_carton') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>Add Carton
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if carton_data %}
+    {% for item in carton_data %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5 class="mb-0">
+                        <i class="fas fa-cube me-2"></i>Carton {{ item.carton.carton_no }}
+                    </h5>
+                    <small class="text-muted">
+                        Series Range: {{ "{:,}".format(item.carton.start_series) }} - {{ "{:,}".format(item.carton.end_series) }}
+                        | Added: {{ item.carton.created_date.strftime('%Y-%m-%d') }}
+                    </small>
+                </div>
+                <div class="col-md-4 text-end">
+                    <span class="badge bg-{% if item.total_available > 15000 %}success{% elif item.total_available > 5000 %}warning{% else %}danger{% endif %} fs-6">
+                        {{ "{:,}".format(item.total_available) }} Available
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for box in item.boxes %}
+                <div class="col-md-4 col-lg-2 mb-3">
+                    <div class="card border-{% if box.available > 15000 %}success{% elif box.available > 5000 %}warning{% else %}secondary{% endif %}">
+                        <div class="card-body text-center p-3">
+                            <h6 class="card-title mb-2">Box {{ box.box_no }}</h6>
+                            <div class="small text-muted mb-2">
+                                {{ "{:,}".format(box.start_series) }} - {{ "{:,}".format(box.end_series) }}
+                            </div>
+                            <div class="mb-2">
+                                <strong class="text-{% if box.available > 15000 %}success{% elif box.available > 5000 %}warning{% else %}danger{% endif %}">
+                                    {{ "{:,}".format(box.available) }}
+                                </strong>
+                                <br>
+                                <small class="text-muted">available</small>
+                            </div>
+                            {% if box.issued_upto > 0 %}
+                            <div class="small text-muted">
+                                Issued up to: {{ "{:,}".format(box.start_series + box.issued_upto - 1) }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="row mt-3">
+                <div class="col-12">
+                    <div class="progress" style="height: 20px;">
+                        {% set total_capacity = 100000 %}
+                        {% set used_percentage = ((total_capacity - item.total_available) / total_capacity * 100) %}
+                        <div class="progress-bar bg-{% if used_percentage < 70 %}success{% elif used_percentage < 90 %}warning{% else %}danger{% endif %}" 
+                             role="progressbar" 
+                             style="width: {{ used_percentage }}%"
+                             aria-valuenow="{{ used_percentage }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                            {{ "%.1f"|format(used_percentage) }}% Used
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-boxes fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">No cartons in stock</h4>
+                    <p class="text-muted">Get started by adding your first carton.</p>
+                    <a href="{{ url_for('add_carton') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Add First Carton
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

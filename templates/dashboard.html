@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="fas fa-dashboard me-2"></i>Dashboard
+        </h1>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-4">
+                        <i class="fas fa-boxes fa-3x"></i>
+                    </div>
+                    <div class="col-8 text-end">
+                        <div class="h4">{{ total_cartons }}</div>
+                        <small>Total Cartons</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-4">
+                        <i class="fas fa-cube fa-3x"></i>
+                    </div>
+                    <div class="col-8 text-end">
+                        <div class="h4">{{ "{:,}".format(total_stock) }}</div>
+                        <small>Available Stock</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-4">
+                        <i class="fas fa-share fa-3x"></i>
+                    </div>
+                    <div class="col-8 text-end">
+                        <div class="h4">{{ total_issues }}</div>
+                        <small>Total Issues</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-4">
+                        <i class="fas fa-chart-line fa-3x"></i>
+                    </div>
+                    <div class="col-8 text-end">
+                        <div class="h4">{{ recent_issues|length }}</div>
+                        <small>Recent Issues</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-clock me-2"></i>Recent Issues
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_issues %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Issue No</th>
+                                    <th>Date</th>
+                                    <th>Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for issue in recent_issues %}
+                                <tr>
+                                    <td>{{ issue.issue_no }}</td>
+                                    <td>{{ issue.issue_date.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ "{:,}".format(issue.total_required) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No issues found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-tachometer-alt me-2"></i>Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('add_carton') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Add New Carton
+                    </a>
+                    <a href="{{ url_for('issue_holograms') }}" class="btn btn-success">
+                        <i class="fas fa-share me-2"></i>Issue Holograms
+                    </a>
+                    <a href="{{ url_for('monthly_report') }}" class="btn btn-info">
+                        <i class="fas fa-chart-line me-2"></i>View Reports
+                    </a>
+                    <a href="{{ url_for('view_stock') }}" class="btn btn-secondary">
+                        <i class="fas fa-boxes me-2"></i>Check Stock Status
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,105 @@
+I want to build a Flask web application to manage hologram stock and issuance. Please generate the full project with Flask, SQLite database, Bootstrap/Tailwind frontend, and PDF export.
+
+🔹 1. Stock Management
+
+Holograms arrive in cartons, each containing 100,000 holograms.
+
+Each carton is divided into 5 smaller boxes of 20,000 holograms each.
+
+When adding a carton, the user enters:
+
+Carton number
+
+Starting series number
+
+Ending series number
+
+The system should automatically calculate and save the 5 smaller box ranges.
+
+Stock balance should always be trackable.
+
+🔹 2. Issuance of Holograms
+
+On the issuing page, the user enters:
+
+Issue number (must be unique, cannot be duplicated)
+
+Permit numbers (can be multiple) with their dates
+
+Total holograms required
+
+The system automatically:
+
+Captures the issue date (auto-generated)
+
+Calculates the series to be issued from the next available hologram in stock (sequential allocation across boxes if needed)
+
+Updates stock so the next issue starts from the correct series
+
+Issuance record should include:
+
+Issue number, date, permits, total issued, and series range
+
+🔹 3. Issuing Page Calculator (Extra Requirement)
+
+On the issuing page, include a small calculation table with 3 columns:
+
+No. of Bottles
+
+No. of Cases
+
+Holograms (auto-calculated as Bottles × Cases)
+
+The user can enter number of bottles and number of cases.
+
+The system dynamically multiplies (bottles × cases) and displays the hologram count in the table.
+
+The calculated hologram count should automatically update the “Total Holograms Required” field in the issuance form.
+
+This ensures the officer can cross-check the requirement before finalizing issuance.
+
+🔹 4. Reporting
+
+The system must generate monthly reports of issues.
+
+Report should include:
+
+Date, Issue No, Permit Nos, Series From, Series To, Total Issued
+
+A monthly total at the end
+
+Remaining balance stock
+
+Reports should be:
+
+Viewable in the web app (as an HTML table)
+
+Exportable as PDF
+
+🔹 5. Database Design (Suggested)
+
+Cartons: carton_no, start_series, end_series
+
+Boxes: linked to carton, box_no, start_series, end_series, issued_upto
+
+Issues: issue_no, issue_date, total_required, series_from, series_to
+
+Permits: linked to issue, permit_no, permit_date
+
+🔹 6. Other Requirements
+
+Prevent duplicate issue numbers
+
+Allow multiple permits per issue
+
+Auto-generate issue dates
+
+User-friendly web forms for:
+
+Adding cartons
+
+Issuing holograms (with calculator table)
+
+Viewing monthly reports
+
+PDF export for reports (use reportlab or weasyprint)

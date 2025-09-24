@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>
+                <i class="fas fa-list me-2"></i>Hologram Issues
+            </h1>
+            <a href="{{ url_for('issue_holograms') }}" class="btn btn-success">
+                <i class="fas fa-plus me-1"></i>New Issue
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if issues %}
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Issue No</th>
+                            <th>Date</th>
+                            <th>Permits</th>
+                            <th>Series Range</th>
+                            <th>Quantity</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for issue in issues %}
+                        <tr>
+                            <td>
+                                <strong>{{ issue.issue_no }}</strong>
+                            </td>
+                            <td>{{ issue.issue_date.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                {% for permit in issue.permits %}
+                                    <span class="badge bg-info me-1">
+                                        {{ permit.permit_no }}
+                                        <small>({{ permit.permit_date.strftime('%m/%d') }})</small>
+                                    </span>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                <span class="font-monospace">
+                                    {{ "{:,}".format(issue.series_from) }} - {{ "{:,}".format(issue.series_to) }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary">
+                                    {{ "{:,}".format(issue.total_required) }}
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" 
+                                        onclick="viewIssueDetails('{{ issue.issue_no }}', '{{ issue.issue_date.strftime('%Y-%m-%d') }}', '{{ issue.series_from }}', '{{ issue.series_to }}', '{{ issue.total_required }}', [{% for permit in issue.permits %}'{{ permit.permit_no }} ({{ permit.permit_date.strftime('%Y-%m-%d') }})'{% if not loop.last %},{% endif %}{% endfor %}])">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-list fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">No issues found</h4>
+                    <p class="text-muted">No hologram issues have been recorded yet.</p>
+                    <a href="{{ url_for('issue_holograms') }}" class="btn btn-success">
+                        <i class="fas fa-plus me-1"></i>Create First Issue
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<!-- Issue Details Modal -->
+<div class="modal fade" id="issueModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Issue Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="issueModalBody">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function viewIssueDetails(issueNo, issueDate, seriesFrom, seriesTo, totalRequired, permits) {
+    const modalBody = document.getElementById('issueModalBody');
+    
+    let permitsHtml = '';
+    permits.forEach(permit => {
+        permitsHtml += `<span class="badge bg-info me-1 mb-1">${permit}</span>`;
+    });
+    
+    modalBody.innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Issue Information</h6>
+                <table class="table table-sm">
+                    <tr>
+                        <td><strong>Issue Number:</strong></td>
+                        <td>${issueNo}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Issue Date:</strong></td>
+                        <td>${issueDate}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total Quantity:</strong></td>
+                        <td>${parseInt(totalRequired).toLocaleString()} holograms</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <h6>Series Range</h6>
+                <table class="table table-sm">
+                    <tr>
+                        <td><strong>From:</strong></td>
+                        <td class="font-monospace">${parseInt(seriesFrom).toLocaleString()}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>To:</strong></td>
+                        <td class="font-monospace">${parseInt(seriesTo).toLocaleString()}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Range:</strong></td>
+                        <td class="font-monospace">${parseInt(seriesFrom).toLocaleString()} - ${parseInt(seriesTo).toLocaleString()}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-12">
+                <h6>Associated Permits</h6>
+                <div>${permitsHtml}</div>
+            </div>
+        </div>
+    `;
+    
+    new bootstrap.Modal(document.getElementById('issueModal')).show();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-plus me-2"></i>Add New Carton
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Each carton contains 100,000 holograms and will be automatically divided into 5 boxes of 20,000 holograms each.
+                </div>
+                
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.carton_no.label(class="form-label") }}
+                        {{ form.carton_no(class="form-control") }}
+                        {% if form.carton_no.errors %}
+                            <div class="text-danger">
+                                {% for error in form.carton_no.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.start_series.label(class="form-label") }}
+                                {{ form.start_series(class="form-control", id="start_series") }}
+                                {% if form.start_series.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.start_series.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.end_series.label(class="form-label") }}
+                                {{ form.end_series(class="form-control", id="end_series") }}
+                                {% if form.end_series.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.end_series.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-secondary" id="series_info" style="display: none;">
+                        <h6>Box Division Preview:</h6>
+                        <div id="box_preview"></div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('view_stock') }}" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </a>
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const startSeriesInput = document.getElementById('start_series');
+    const endSeriesInput = document.getElementById('end_series');
+    const seriesInfo = document.getElementById('series_info');
+    const boxPreview = document.getElementById('box_preview');
+    
+    function updateBoxPreview() {
+        const startSeries = parseInt(startSeriesInput.value);
+        const endSeries = parseInt(endSeriesInput.value);
+        
+        if (startSeries && endSeries && endSeries > startSeries) {
+            const totalHolograms = endSeries - startSeries + 1;
+            
+            if (totalHolograms === 100000) {
+                let previewHtml = '<div class="row">';
+                for (let i = 0; i < 5; i++) {
+                    const boxStart = startSeries + (i * 20000);
+                    const boxEnd = boxStart + 19999;
+                    previewHtml += `
+                        <div class="col-md-4 mb-2">
+                            <div class="small bg-light p-2 rounded">
+                                <strong>Box ${i + 1}:</strong><br>
+                                ${boxStart.toLocaleString()} - ${boxEnd.toLocaleString()}
+                            </div>
+                        </div>`;
+                }
+                previewHtml += '</div>';
+                boxPreview.innerHTML = previewHtml;
+                seriesInfo.style.display = 'block';
+            } else {
+                seriesInfo.style.display = 'none';
+            }
+        } else {
+            seriesInfo.style.display = 'none';
+        }
+    }
+    
+    startSeriesInput.addEventListener('input', updateBoxPreview);
+    endSeriesInput.addEventListener('input', updateBoxPreview);
+    
+    // Auto-calculate end series when start series is entered
+    startSeriesInput.addEventListener('blur', function() {
+        const startSeries = parseInt(this.value);
+        if (startSeries && !endSeriesInput.value) {
+            endSeriesInput.value = startSeries + 99999;
+            updateBoxPreview();
+        }
+    });
+});
+</script>
+{% endblock %}
